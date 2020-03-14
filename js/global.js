@@ -20,37 +20,36 @@ let level = 'beginner';
 let rows = settings[level].rows;
 let cols = settings[level].cols;
 let mines = settings[level].mines;
+let movesNumber = 0;
 const totalCells = cols * rows;
 let minesArray = fillMinesArray(mines, totalCells, cols);
-console.log(minesArray);
+generateGrid();
 
-let wrapper = document.createElement('div');
-wrapper.classList.add('mine-wrapper');
-wrapper.style.width = cols * 30 + 'px';
-n = 0;
-for (let r = 0; r < rows; r++) {
-    let row = document.createElement('div');
-    row.classList.add('mine-row');
-    for (let c = 0; c < cols; c++) {
-        let col = document.createElement('div');
-        let value = Boolean(minesArray[n].isMine) ? '' : Boolean(minesArray[n].hint) ? minesArray[n].hint : '';
-        col.setAttribute('data-mine', minesArray[n].isMine);
-        col.setAttribute('data-number', n);
-        setCellClass(col, minesArray[n]);
-        col.appendChild(document.createTextNode(value));
-        row.appendChild(col);
-        n++;
+function generateGrid() {
+    let wrapper = document.createElement('div');
+    wrapper.classList.add('mine-wrapper');
+    wrapper.style.width = cols * 30 + 'px';
+    n = 0;
+    for (let r = 0; r < rows; r++) {
+        let row = document.createElement('div');
+        row.classList.add('mine-row');
+        for (let c = 0; c < cols; c++) {
+            let col = document.createElement('div');
+            col.classList.add('mine-cell');
+            col.setAttribute('data-number', n);
+            clickHandler(col);
+            row.appendChild(col);
+            n++;
+        }
+        wrapper.appendChild(row);
     }
-    wrapper.appendChild(row);
+
+    game.appendChild(wrapper);
 }
-
-game.appendChild(wrapper);
-
 function setCellClass(cell, arrayItem) {
     let cellClass = arrayItem.isMine ? 'is-mine' : `hint-${arrayItem.hint}`;
-    cell.classList.add('mine-cell', cellClass);
+    cell.classList.add(cellClass);
 }
-
 function fillMinesArray(mines, totalCells, cols) {
     let minesArray = [];
     for (m = 0; m < mines; m++) {
@@ -60,9 +59,8 @@ function fillMinesArray(mines, totalCells, cols) {
         minesArray.push({ isMine: false });
     }
     let shuffledArray = shuffleArray(minesArray)
-    return placeHints(shuffledArray, cols);
+    return shuffledArray;
 }
-
 function shuffleArray(array) {
     array.forEach((item, i) => {
         const j = Math.floor(Math.random() * (i + 1));
@@ -70,7 +68,6 @@ function shuffleArray(array) {
     })
     return array;
 }
-
 function placeHints(shuffledArray, cols) {
     return shuffledArray.map((item, index) => {
         const isFirstOfRow = !Boolean(index % cols);
@@ -122,4 +119,41 @@ function placeHints(shuffledArray, cols) {
         item.hint = hintCounter;
         return item;
     })
+}
+function clickHandler(cell) {
+    cell.addEventListener('click', () => {
+        if (isFirstMove()) {
+            fillGrid(cell);
+        }
+        movesNumber++;
+    });
+}
+function fillGrid(cell) {
+    const cellNumber = Number(cell.getAttribute('data-number'));
+    const safeKey = getRandomSafeKey();
+    if (minesArray[cellNumber].isMine) {
+        [minesArray[cellNumber], minesArray[safeKey]] = [minesArray[safeKey], minesArray[cellNumber]];
+    }
+    placeHints(minesArray, cols);
+    const cellsArray = document.querySelectorAll('.mine-cell');
+    cellsArray.forEach((item, index) => {
+        let value = Boolean(minesArray[index].isMine) ? '' : Boolean(minesArray[index].hint) ? minesArray[index].hint : '';
+        item.setAttribute('data-mine', minesArray[index].isMine);
+        setCellClass(item, minesArray[index]);
+        item.appendChild(document.createTextNode(value));
+    });
+}
+
+function getRandomSafeKey() {
+    let safeCellsArray = [];
+    minesArray.forEach((item, index) => {
+        if(!item.isMine){
+            safeCellsArray.push(index);
+        }
+    });
+    const j = Math.floor(Math.random() * safeCellsArray.length);
+    return safeCellsArray[j];
+}
+function isFirstMove() {
+    return !Boolean(movesNumber);
 }
