@@ -19,5 +19,36 @@ body {
     width: 30px;
     height: 30px;
     line-height: 30px;
+    font-weight: bold;
     border: 1px solid #6D6D6D;
+}
+.is-mine {
+    background-image: url('../img/mine.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.hint-1 {
+    color: #0000FE;
+}
+.hint-2 {
+    color: #007F00;
+}
+.hint-3 {
+    color: #D70000;
+}
+.hint-4 {
+    color: #01007C;
+}
+.hint-5 {
+    color: #770300;
+}
+.hint-6 {
+    color: #008080;
+}
+.hint-7 {
+    color: #840084;
+}
+.hint-8 {
+    color: #808080;
 }

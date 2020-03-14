@@ -1,7 +1,25 @@
 const game = document.getElementById('game');
-const rows = 10;
-const cols = 10;
-const mines = 10;
+const settings = {
+    beginner: {
+        rows: 9,
+        cols: 9,
+        mines: 10
+    },
+    medium: {
+        rows: 20,
+        cols: 20,
+        mines: 20
+    },
+    hard: {
+        rows: 30,
+        cols: 30,
+        mines: 30
+    }
+}
+let level = 'beginner';
+let rows = settings[level].rows;
+let cols = settings[level].cols;
+let mines = settings[level].mines;
 const totalCells = cols * rows;
 let minesArray = fillMinesArray(mines, totalCells, cols);
 console.log(minesArray);
@@ -15,10 +33,10 @@ for (let r = 0; r < rows; r++) {
     row.classList.add('mine-row');
     for (let c = 0; c < cols; c++) {
         let col = document.createElement('div');
-        let value = Boolean(minesArray[n].isMine) ? 'X' : Boolean(minesArray[n].hint) ? minesArray[n].hint : '';
+        let value = Boolean(minesArray[n].isMine) ? '' : Boolean(minesArray[n].hint) ? minesArray[n].hint : '';
         col.setAttribute('data-mine', minesArray[n].isMine);
         col.setAttribute('data-number', n);
-        col.classList.add('mine-cell')
+        setCellClass(col, minesArray[n]);
         col.appendChild(document.createTextNode(value));
         row.appendChild(col);
         n++;
@@ -27,6 +45,11 @@ for (let r = 0; r < rows; r++) {
 }
 
 game.appendChild(wrapper);
+
+function setCellClass(cell, arrayItem) {
+    let cellClass = arrayItem.isMine ? 'is-mine' : `hint-${arrayItem.hint}`;
+    cell.classList.add('mine-cell', cellClass);
+}
 
 function fillMinesArray(mines, totalCells, cols) {
     let minesArray = [];
@@ -37,7 +60,6 @@ function fillMinesArray(mines, totalCells, cols) {
         minesArray.push({ isMine: false });
     }
     let shuffledArray = shuffleArray(minesArray)
-    console.log(cols);
     return placeHints(shuffledArray, cols);
 }
 
