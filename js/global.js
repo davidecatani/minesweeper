@@ -123,18 +123,30 @@ function placeHints(shuffledArray, cols) {
 }
 function clickHandler(cell, currentCell) {
     cell.addEventListener('click', () => {
-        if (isCellClosed(cell)) {
+        if (isCellClosed(cell) && isNotEndGame() && !cell.classList.contains('has-flag')) {
             const cellsArray = document.querySelectorAll('.mine-cell');
             if (isFirstMove()) {
                 fillGrid(cell, cellsArray);
             }
             cell.classList.remove(closedCellClass);
+            if (hasMine(currentCell)) {
+                cell.classList.add('error');
+                game.classList.add('end-game');
+                return;
+            }
             if (hasNotHint(currentCell)) {
                 openNearCells(currentCell, cellsArray);
             }
             movesNumber++;
         }
     });
+    cell.addEventListener('contextmenu', function(event) {
+        event.preventDefault();
+        if (isCellClosed(cell) && isNotEndGame()) {
+            cell.classList.toggle('has-flag');
+        }
+        return false;
+    }, false);
 }
 function fillGrid(cell, cellsArray) {
     const currentCell = Number(cell.getAttribute('data-number'));
@@ -214,11 +226,16 @@ function openNearCells(currentCell, cellsArray) {
             cellsArray[cell].classList.remove(closedCellClass);
             if (hasNotHint(cell)) {
                 openNearCells(cell, cellsArray);
-                // console.log('here');
             }
         }
     });
 }
 function isNotNegative(number) {
     return number >= 0;
+}
+function hasMine(currentCell) {
+    return minesArray[currentCell].isMine;
+}
+function isNotEndGame() {
+    return !game.classList.contains('end-game');
 }
