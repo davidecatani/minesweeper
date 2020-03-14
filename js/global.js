@@ -16,6 +16,7 @@ const settings = {
         mines: 30
     }
 }
+const closedCellClass = 'closed-cell';
 let level = 'beginner';
 let rows = settings[level].rows;
 let cols = settings[level].cols;
@@ -35,9 +36,9 @@ function generateGrid() {
         row.classList.add('mine-row');
         for (let c = 0; c < cols; c++) {
             let col = document.createElement('div');
-            col.classList.add('mine-cell');
+            col.classList.add('mine-cell', 'closed-cell');
             col.setAttribute('data-number', n);
-            clickHandler(col);
+            clickHandler(col, n);
             row.appendChild(col);
             n++;
         }
@@ -120,22 +121,28 @@ function placeHints(shuffledArray, cols) {
         return item;
     })
 }
-function clickHandler(cell) {
+function clickHandler(cell, currentCell) {
     cell.addEventListener('click', () => {
-        if (isFirstMove()) {
-            fillGrid(cell);
+        if (isCellClosed(cell)) {
+            const cellsArray = document.querySelectorAll('.mine-cell');
+            if (isFirstMove()) {
+                fillGrid(cell, cellsArray);
+            }
+            cell.classList.remove(closedCellClass);
+            if (hasNotHint(currentCell)) {
+                openNearCells(currentCell, cellsArray);
+            }
+            movesNumber++;
         }
-        movesNumber++;
     });
 }
-function fillGrid(cell) {
-    const cellNumber = Number(cell.getAttribute('data-number'));
+function fillGrid(cell, cellsArray) {
+    const currentCell = Number(cell.getAttribute('data-number'));
     const safeKey = getRandomSafeKey();
-    if (minesArray[cellNumber].isMine) {
-        [minesArray[cellNumber], minesArray[safeKey]] = [minesArray[safeKey], minesArray[cellNumber]];
+    if (minesArray[currentCell].isMine) {
+        [minesArray[currentCell], minesArray[safeKey]] = [minesArray[safeKey], minesArray[currentCell]];
     }
     placeHints(minesArray, cols);
-    const cellsArray = document.querySelectorAll('.mine-cell');
     cellsArray.forEach((item, index) => {
         let value = Boolean(minesArray[index].isMine) ? '' : Boolean(minesArray[index].hint) ? minesArray[index].hint : '';
         item.setAttribute('data-mine', minesArray[index].isMine);
@@ -147,7 +154,7 @@ function fillGrid(cell) {
 function getRandomSafeKey() {
     let safeCellsArray = [];
     minesArray.forEach((item, index) => {
-        if(!item.isMine){
+        if (!item.isMine) {
             safeCellsArray.push(index);
         }
     });
@@ -156,4 +163,62 @@ function getRandomSafeKey() {
 }
 function isFirstMove() {
     return !Boolean(movesNumber);
+}
+function isCellClosed(cell) {
+    return cell.classList.contains(closedCellClass);
+}
+function hasNotHint(currentCell) {
+    return !Boolean(minesArray[currentCell].hint);
+}
+function openNearCells(currentCell, cellsArray) {
+    const isFirstOfRow = !Boolean(currentCell % cols);
+    const isLastOfRow = !Boolean((currentCell + 1) % cols);
+    let radiusArray = [];
+    let right = currentCell + 1;
+    let left = currentCell - 1;
+    let top = currentCell - cols;
+    let bottom = currentCell + cols;
+    let topLeft = currentCell - (cols + 1);
+    let topRight = currentCell - (cols - 1);
+    let bottomLeft = currentCell + (cols - 1);
+    let bottomRight = currentCell + (cols + 1);
+
+    if (isNotNegative(right) && !isLastOfRow) {
+        radiusArray.push(right);
+    }
+    if (isNotNegative(left) && !isFirstOfRow) {
+        radiusArray.push(left);
+    }
+    if (isNotNegative(bottom)) {
+        radiusArray.push(bottom);
+    }
+    if (isNotNegative(top)) {
+        radiusArray.push(top);
+    }
+
+    if (isNotNegative(topLeft) && !isFirstOfRow) {
+        radiusArray.push(topLeft);
+    }
+    if (isNotNegative(bottomLeft) && !isFirstOfRow) {
+        radiusArray.push(bottomLeft);
+    }
+    if (isNotNegative(topRight) && !isLastOfRow) {
+        radiusArray.push(topRight);
+    }
+    if (isNotNegative(bottomRight) && !isLastOfRow) {
+        radiusArray.push(bottomRight);
+    }
+
+    radiusArray.forEach((cell) => {
+        if (Boolean(cellsArray[cell]) && cellsArray[cell].classList.contains(closedCellClass)) {
+            cellsArray[cell].classList.remove(closedCellClass);
+            if (hasNotHint(cell)) {
+                openNearCells(cell, cellsArray);
+                // console.log('here');
+            }
+        }
+    });
+}
+function isNotNegative(number) {
+    return number >= 0;
 }
