@@ -10,13 +10,14 @@ body {
     background-color: #BDBDBD;
 }
 .mine-row {
-    display: block;
+    display: flex;
 }
 .mine-cell {
-    display: inline-block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 30px;
     height: 30px;
     line-height: 30px;
     border: 1px solid #6D6D6D;
-
 }
