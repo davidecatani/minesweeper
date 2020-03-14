@@ -5,73 +5,83 @@ body {
   padding: 3rem 1.5rem;
   text-align: center;
 }
-
 .mine-wrapper {
-    background-color: #BDBDBD;
+  background-color: #bdbdbd;
+  border-color: #fbfcfc #868686 #868686 #fbfcfc;
+  border-style: solid;
+  padding: 10px;
+  border-width: 3px;
+}
+
+.mine-inner-wrapper {
+  background-color: #bdbdbd;
+  border-color: #868686 #fbfcfc #fbfcfc #868686;
+  border-style: solid;
+  border-width: 3px;
 }
 .mine-row {
-    display: flex;
+  display: flex;
 }
 .mine-cell {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 30px;
-    height: 30px;
-    line-height: 30px;
-    font-weight: bold;
-    border: 1px solid #6D6D6D;
-    position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  font-weight: bold;
+  border: 1px solid #6d6d6d;
+  position: relative;
 }
 .mine-cell.error {
-    background-color: #FF0000;
+  background-color: #ff0000;
 }
 .mine-cell.closed-cell:before {
-    content: '';
-    position: absolute;
-    display: block;
-    background-color: #C0C0C0;
-    top: -1px;
-    left: -1px;
-    width: 30px;
-    height: 30px;
-    border-color: #FBFCFC #868686 #868686 #FBFCFC;
-    border-style: solid;
-    border-width: 2px;
+  content: "";
+  position: absolute;
+  display: block;
+  background-color: #c0c0c0;
+  top: -1px;
+  left: -1px;
+  width: 30px;
+  height: 30px;
+  border-color: #fbfcfc #868686 #868686 #fbfcfc;
+  border-style: solid;
+  border-width: 2px;
 }
 .is-mine {
-    background-image: url('../img/mine.png');
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
+  background-image: url("../img/mine.png");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 .mine-cell.has-flag:before {
-    background-image: url('../img/flag.png');
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
+  background-image: url("../img/flag.png");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 .hint-1 {
-    color: #0000FE;
+  color: #0000fe;
 }
 .hint-2 {
-    color: #007F00;
+  color: #007f00;
 }
 .hint-3 {
-    color: #D70000;
+  color: #d70000;
 }
 .hint-4 {
-    color: #01007C;
+  color: #01007c;
 }
 .hint-5 {
-    color: #770300;
+  color: #770300;
 }
 .hint-6 {
-    color: #008080;
+  color: #008080;
 }
 .hint-7 {
-    color: #840084;
+  color: #840084;
 }
 .hint-8 {
-    color: #808080;
+  color: #808080;
 }

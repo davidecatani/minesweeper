@@ -29,7 +29,10 @@ generateGrid();
 function generateGrid() {
     let wrapper = document.createElement('div');
     wrapper.classList.add('mine-wrapper');
-    wrapper.style.width = cols * 30 + 'px';
+    wrapper.style.width = (cols * 30) + 26 + 'px';
+    let innerWrapper = document.createElement('div');
+    innerWrapper.classList.add('mine-inner-wrapper');
+    innerWrapper.style.width = cols * 30 + 'px';
     n = 0;
     for (let r = 0; r < rows; r++) {
         let row = document.createElement('div');
@@ -42,9 +45,9 @@ function generateGrid() {
             row.appendChild(col);
             n++;
         }
-        wrapper.appendChild(row);
+        innerWrapper.appendChild(row);
     }
-
+    wrapper.appendChild(innerWrapper)
     game.appendChild(wrapper);
 }
 function setCellClass(cell, arrayItem) {
@@ -140,7 +143,7 @@ function clickHandler(cell, currentCell) {
             movesNumber++;
         }
     });
-    cell.addEventListener('contextmenu', function(event) {
+    cell.addEventListener('contextmenu', function (event) {
         event.preventDefault();
         if (isCellClosed(cell) && isNotEndGame()) {
             cell.classList.toggle('has-flag');
