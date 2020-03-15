@@ -5,34 +5,42 @@ const settings = {
         cols: 9,
         mines: 10
     },
-    medium: {
-        rows: 20,
-        cols: 20,
-        mines: 20
+    intermediate: {
+        rows: 16,
+        cols: 16,
+        mines: 40
     },
-    hard: {
-        rows: 30,
+    expert: {
+        rows: 16,
         cols: 30,
-        mines: 30
+        mines: 99
     }
 }
 const closedCellClass = 'closed-cell';
+const gameOverClass = 'game-over';
+const gameWonClass = 'game-won';
+const flagClass = 'has-flag';
+const minesCounterID = 'mines-counter';
+const digitalBoxClass = 'digital-box';
 let level = 'beginner';
 let rows = settings[level].rows;
 let cols = settings[level].cols;
 let mines = settings[level].mines;
 let movesNumber = 0;
+let freeCells = 0;
+let flagNumber = 0;
 const totalCells = cols * rows;
-let minesArray = fillMinesArray(mines, totalCells, cols);
+let minesArray = [];
 generateGrid();
 
 function generateGrid() {
+    minesArray = fillMinesArray(mines, totalCells, cols);
     let wrapper = document.createElement('div');
     wrapper.classList.add('mine-wrapper');
-    wrapper.style.width = (cols * 30) + 26 + 'px';
+    wrapper.appendChild(generateControls());
     let innerWrapper = document.createElement('div');
     innerWrapper.classList.add('mine-inner-wrapper');
-    innerWrapper.style.width = cols * 30 + 'px';
+    innerWrapper.style.width = cols * 30 + 6 + 'px';
     n = 0;
     for (let r = 0; r < rows; r++) {
         let row = document.createElement('div');
@@ -49,6 +57,39 @@ function generateGrid() {
     }
     wrapper.appendChild(innerWrapper)
     game.appendChild(wrapper);
+}
+function generateControls() {
+    let innerWrapperControls = document.createElement('div');
+    innerWrapperControls.classList.add('mine-inner-wrapper', 'controls-wrapper');
+
+    let minesCounter = document.createElement('div');
+    minesCounter.classList.add(digitalBoxClass);
+    minesCounter.setAttribute('id', minesCounterID);
+    minesCounter.appendChild(document.createTextNode(mines));
+    innerWrapperControls.appendChild(minesCounter);
+
+    let newGameButton = document.createElement('div');
+    newGameButton.setAttribute('id', 'new-game-btn');
+    startNewGame(newGameButton);
+    innerWrapperControls.appendChild(newGameButton);
+
+    let timeCounter = document.createElement('div');
+    timeCounter.classList.add(digitalBoxClass);
+    timeCounter.appendChild(document.createTextNode('0'));
+    innerWrapperControls.appendChild(timeCounter);
+
+    return innerWrapperControls;
+}
+function startNewGame(newGameButton) {
+    newGameButton.addEventListener('click', () => {
+        game.innerHTML = '';
+        game.classList.remove(gameWonClass);
+        game.classList.remove(gameOverClass);
+        movesNumber = 0;
+        freeCells = 0;
+        flagNumber = 0;
+        generateGrid();
+    });
 }
 function setCellClass(cell, arrayItem) {
     let cellClass = arrayItem.isMine ? 'is-mine' : `hint-${arrayItem.hint}`;
@@ -126,27 +167,33 @@ function placeHints(shuffledArray, cols) {
 }
 function clickHandler(cell, currentCell) {
     cell.addEventListener('click', () => {
-        if (isCellClosed(cell) && isNotEndGame() && !cell.classList.contains('has-flag')) {
+        if (isCellClosed(cell) && isNotEndGame() && !isWon() && !cell.classList.contains(flagClass)) {
             const cellsArray = document.querySelectorAll('.mine-cell');
             if (isFirstMove()) {
                 fillGrid(cell, cellsArray);
             }
             cell.classList.remove(closedCellClass);
+            freeCells++;
             if (hasMine(currentCell)) {
                 cell.classList.add('error');
-                game.classList.add('end-game');
+                game.classList.add(gameOverClass);
+                showAllMines(cellsArray);
                 return;
             }
             if (hasNotHint(currentCell)) {
                 openNearCells(currentCell, cellsArray);
             }
             movesNumber++;
+            if (isWon()) {
+                game.classList.add(gameWonClass);
+            }
         }
     });
     cell.addEventListener('contextmenu', function (event) {
         event.preventDefault();
-        if (isCellClosed(cell) && isNotEndGame()) {
-            cell.classList.toggle('has-flag');
+        if (isCellClosed(cell) && isNotEndGame() && !isWon()) {
+            cell.classList.toggle(flagClass);
+            toggleFlagNumber(cell);
         }
         return false;
     }, false);
@@ -166,6 +213,10 @@ function fillGrid(cell, cellsArray) {
     });
 }
 
+function toggleFlagNumber(cell) {
+    cell.classList.contains(flagClass) ? flagNumber++ : flagNumber--;
+    document.getElementById(minesCounterID).innerText = mines - flagNumber;
+}
 function getRandomSafeKey() {
     let safeCellsArray = [];
     minesArray.forEach((item, index) => {
@@ -225,8 +276,13 @@ function openNearCells(currentCell, cellsArray) {
     }
 
     radiusArray.forEach((cell) => {
-        if (Boolean(cellsArray[cell]) && cellsArray[cell].classList.contains(closedCellClass)) {
+        if (
+            Boolean(cellsArray[cell])
+            && cellsArray[cell].classList.contains(closedCellClass)
+            && !cellsArray[cell].classList.contains(flagClass)
+        ) {
             cellsArray[cell].classList.remove(closedCellClass);
+            freeCells++;
             if (hasNotHint(cell)) {
                 openNearCells(cell, cellsArray);
             }
@@ -240,5 +296,15 @@ function hasMine(currentCell) {
     return minesArray[currentCell].isMine;
 }
 function isNotEndGame() {
-    return !game.classList.contains('end-game');
+    return !game.classList.contains(gameOverClass);
+}
+function isWon() {
+    return (totalCells - mines) === freeCells;
+}
+function showAllMines(cellsArray) {
+    cellsArray.forEach((currentCell, index) => {
+        if (hasMine(index)) {
+            currentCell.classList.remove(closedCellClass);
+        }
+    })
 }

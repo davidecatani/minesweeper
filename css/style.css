@@ -1,21 +1,32 @@
+:root {
+    --background-color: #BDBDBD;
+    --element-border-color: #fbfcfc #868686 #868686 #fbfcfc;
+    --element-border-inverted-color: #868686 #fbfcfc #fbfcfc #868686;
+}
+@font-face {
+  font-family: 'digital';
+  src: url('../fonts/digital-7.ttf');
+}
 body {
   padding-top: 5rem;
+  min-height: 100vh;
+  background: #e6e6e6;
 }
 .starter-template {
   padding: 3rem 1.5rem;
   text-align: center;
 }
 .mine-wrapper {
-  background-color: #bdbdbd;
-  border-color: #fbfcfc #868686 #868686 #fbfcfc;
+  background-color: var(--background-color);
+  border-color: var(--element-border-color);
   border-style: solid;
   padding: 10px;
   border-width: 3px;
 }
 
 .mine-inner-wrapper {
-  background-color: #bdbdbd;
-  border-color: #868686 #fbfcfc #fbfcfc #868686;
+  background-color: var(--background-color);
+  border-color: var(--element-border-inverted-color);
   border-style: solid;
   border-width: 3px;
 }
@@ -45,7 +56,7 @@ body {
   left: -1px;
   width: 30px;
   height: 30px;
-  border-color: #fbfcfc #868686 #868686 #fbfcfc;
+  border-color: var(--element-border-color);
   border-style: solid;
   border-width: 2px;
 }
@@ -84,4 +95,39 @@ body {
 }
 .hint-8 {
   color: #808080;
+}
+.controls-wrapper {
+    padding: 5px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+#new-game-btn,
+.digital-box {
+    height: 26px;
+}
+#new-game-btn {
+    width: 26px;
+    background-color: var(--background-color);
+    border-color: var(--element-border-color);
+    border-style: solid;
+    border-width: 3px;
+    box-shadow: 0px 0px 2px rgba(0,0,0,0.5);
+    background-image: url(../img/smile-sprite.png);
+    background-position: 2px 2px;
+    background-repeat: no-repeat;
+    background-size: 35px 35px;
+}
+#new-game-btn:active {
+  border-color: var(--element-border-inverted-color);
+}
+.digital-box {
+    font-family: digital;
+    background-color: #000000;
+    color: #FF0000;
+    font-size: 30px;
+    line-height: 30px;
+    width: 46px;
+    text-align: right;
+    padding: 0 2px;
 }
