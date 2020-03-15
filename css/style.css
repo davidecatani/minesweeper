@@ -121,6 +121,15 @@ body {
 #new-game-btn:active {
   border-color: var(--element-border-inverted-color);
 }
+.game-over #new-game-btn {
+  background-position: -17px -17px;
+}
+.game-won #new-game-btn {
+  background-position: 2px -17px;
+}
+.cell-active #new-game-btn {
+  background-position: -17px 2px;
+}
 .digital-box {
     font-family: digital;
     background-color: #000000;

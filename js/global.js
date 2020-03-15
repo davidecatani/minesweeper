@@ -22,6 +22,7 @@ const gameWonClass = 'game-won';
 const flagClass = 'has-flag';
 const minesCounterID = 'mines-counter';
 const digitalBoxClass = 'digital-box';
+const secondsCounterID = 'seconds-counter';
 let level = 'beginner';
 let rows = settings[level].rows;
 let cols = settings[level].cols;
@@ -29,6 +30,8 @@ let mines = settings[level].mines;
 let movesNumber = 0;
 let freeCells = 0;
 let flagNumber = 0;
+let seconds = 0;
+let timer;
 const totalCells = cols * rows;
 let minesArray = [];
 generateGrid();
@@ -75,7 +78,8 @@ function generateControls() {
 
     let timeCounter = document.createElement('div');
     timeCounter.classList.add(digitalBoxClass);
-    timeCounter.appendChild(document.createTextNode('0'));
+    timeCounter.setAttribute('id', secondsCounterID);
+    timeCounter.appendChild(document.createTextNode(seconds));
     innerWrapperControls.appendChild(timeCounter);
 
     return innerWrapperControls;
@@ -88,6 +92,7 @@ function startNewGame(newGameButton) {
         movesNumber = 0;
         freeCells = 0;
         flagNumber = 0;
+        seconds = 0;
         generateGrid();
     });
 }
@@ -170,6 +175,7 @@ function clickHandler(cell, currentCell) {
         if (isCellClosed(cell) && isNotEndGame() && !isWon() && !cell.classList.contains(flagClass)) {
             const cellsArray = document.querySelectorAll('.mine-cell');
             if (isFirstMove()) {
+                startTimer();
                 fillGrid(cell, cellsArray);
             }
             cell.classList.remove(closedCellClass);
@@ -178,6 +184,7 @@ function clickHandler(cell, currentCell) {
                 cell.classList.add('error');
                 game.classList.add(gameOverClass);
                 showAllMines(cellsArray);
+                clearInterval(timer);
                 return;
             }
             if (hasNotHint(currentCell)) {
@@ -186,6 +193,7 @@ function clickHandler(cell, currentCell) {
             movesNumber++;
             if (isWon()) {
                 game.classList.add(gameWonClass);
+                clearInterval(timer)
             }
         }
     });
@@ -307,4 +315,11 @@ function showAllMines(cellsArray) {
             currentCell.classList.remove(closedCellClass);
         }
     })
+}
+function startTimer() {
+    const timerElement = document.getElementById(secondsCounterID);
+    timer = setInterval(() => {
+        seconds++;
+        timerElement.innerHTML = seconds;
+    }, 1000);
 }
