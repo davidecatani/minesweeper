@@ -95,6 +95,7 @@ function startNewGame(newGameButton) {
         freeCells = 0;
         flagNumber = 0;
         seconds = 0;
+        clearInterval(timer);
         generateGrid();
     });
 }
@@ -337,6 +338,7 @@ function levelSelect() {
             freeCells = 0;
             flagNumber = 0;
             seconds = 0;
+            clearInterval(timer);
             generateSettings(level);
             generateGrid();
         })
