@@ -24,20 +24,22 @@ const minesCounterID = 'mines-counter';
 const digitalBoxClass = 'digital-box';
 const secondsCounterID = 'seconds-counter';
 let level = 'beginner';
-let rows = settings[level].rows;
-let cols = settings[level].cols;
-let mines = settings[level].mines;
+let rows = 0;
+let cols = 0;
+let mines = 0;
 let movesNumber = 0;
 let freeCells = 0;
 let flagNumber = 0;
 let seconds = 0;
 let timer;
-const totalCells = cols * rows;
+let totalCells = cols * rows;
 let minesArray = [];
+levelSelect();
+generateSettings(level);
 generateGrid();
 
 function generateGrid() {
-    minesArray = fillMinesArray(mines, totalCells, cols);
+    minesArray = fillMinesArray(mines, totalCells);
     let wrapper = document.createElement('div');
     wrapper.classList.add('mine-wrapper');
     wrapper.appendChild(generateControls());
@@ -100,7 +102,7 @@ function setCellClass(cell, arrayItem) {
     let cellClass = arrayItem.isMine ? 'is-mine' : `hint-${arrayItem.hint}`;
     cell.classList.add(cellClass);
 }
-function fillMinesArray(mines, totalCells, cols) {
+function fillMinesArray(mines, totalCells) {
     let minesArray = [];
     for (m = 0; m < mines; m++) {
         minesArray.push({ isMine: true });
@@ -108,7 +110,7 @@ function fillMinesArray(mines, totalCells, cols) {
     for (i = 0; i < (totalCells - mines); i++) {
         minesArray.push({ isMine: false });
     }
-    let shuffledArray = shuffleArray(minesArray)
+    let shuffledArray = shuffleArray(minesArray);
     return shuffledArray;
 }
 function shuffleArray(array) {
@@ -322,4 +324,27 @@ function startTimer() {
         seconds++;
         timerElement.innerHTML = seconds;
     }, 1000);
+}
+function levelSelect() {
+    const links = document.getElementById('levels-select').querySelectorAll('a');
+    links.forEach((link) => {
+        link.addEventListener('click', () => {
+            level = link.getAttribute('data-level');
+            game.innerHTML = '';
+            game.classList.remove(gameWonClass);
+            game.classList.remove(gameOverClass);
+            movesNumber = 0;
+            freeCells = 0;
+            flagNumber = 0;
+            seconds = 0;
+            generateSettings(level);
+            generateGrid();
+        })
+    });
+}
+function generateSettings(level) {
+    rows = settings[level].rows;
+    cols = settings[level].cols;
+    mines = settings[level].mines;
+    totalCells = cols * rows;
 }
