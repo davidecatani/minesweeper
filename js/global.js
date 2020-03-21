@@ -46,7 +46,7 @@ function generateGrid() {
     let innerWrapper = document.createElement('div');
     innerWrapper.classList.add('mine-inner-wrapper');
     innerWrapper.style.width = cols * 30 + 6 + 'px';
-    n = 0;
+    let n = 0;
     for (let r = 0; r < rows; r++) {
         let row = document.createElement('div');
         row.classList.add('mine-row');
@@ -105,10 +105,10 @@ function setCellClass(cell, arrayItem) {
 }
 function fillMinesArray(mines, totalCells) {
     let minesArray = [];
-    for (m = 0; m < mines; m++) {
+    for (let m = 0; m < mines; m++) {
         minesArray.push({ isMine: true });
     }
-    for (i = 0; i < (totalCells - mines); i++) {
+    for (let i = 0; i < (totalCells - mines); i++) {
         minesArray.push({ isMine: false });
     }
     let shuffledArray = shuffleArray(minesArray);
