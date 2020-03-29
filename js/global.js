@@ -122,7 +122,7 @@ function placeHints() {
 
         let left = minesArray[index - 1];
         let right = minesArray[index + 1];
-        
+
         let bottomLeft = minesArray[index + (cols - 1)];
         let bottom = minesArray[index + cols];
         let bottomRight = minesArray[index + (cols + 1)];
@@ -193,7 +193,9 @@ function clickHandler(cell, currentCell) {
         }
     });
     cell.addEventListener('mousedown', () => {
-        game.classList.add('cell-active');
+        if (isCellClosed(cell) && isNotEndGame() && !isWon() && !cell.classList.contains(flagClass)) {
+            game.classList.add('cell-active');
+        }
     });
     cell.addEventListener('mouseup', () => {
         game.classList.remove('cell-active');
