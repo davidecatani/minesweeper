@@ -1,28 +1,15 @@
-const game = document.getElementById('game');
-const settings = {
-    beginner: {
-        rows: 9,
-        cols: 9,
-        mines: 10
-    },
-    intermediate: {
-        rows: 16,
-        cols: 16,
-        mines: 40
-    },
-    expert: {
-        rows: 16,
-        cols: 30,
-        mines: 99
-    }
-}
-const closedCellClass = 'closed-cell';
-const gameOverClass = 'game-over';
-const gameWonClass = 'game-won';
-const flagClass = 'has-flag';
-const minesCounterID = 'mines-counter';
-const digitalBoxClass = 'digital-box';
-const secondsCounterID = 'seconds-counter';
+import {
+    game,
+    settings,
+    closedCellClass,
+    gameOverClass,
+    gameWonClass,
+    flagClass,
+    minesCounterID,
+    digitalBoxClass,
+    secondsCounterID
+} from './constants.js';
+
 let level = 'beginner';
 let rows = 0;
 let cols = 0;
@@ -34,35 +21,39 @@ let seconds = 0;
 let timer;
 let totalCells = cols * rows;
 let minesArray = [];
+let cellsArray = [];
 levelSelect();
-generateSettings(level);
-generateGrid();
-
-function generateGrid() {
-    minesArray = fillMinesArray(mines, totalCells);
-    let wrapper = document.createElement('div');
-    wrapper.classList.add('mine-wrapper');
-    wrapper.appendChild(generateControls());
-    let innerWrapper = document.createElement('div');
-    innerWrapper.classList.add('mine-inner-wrapper');
-    innerWrapper.style.width = cols * 30 + 6 + 'px';
-    let n = 0;
-    for (let r = 0; r < rows; r++) {
-        let row = document.createElement('div');
-        row.classList.add('mine-row');
-        for (let c = 0; c < cols; c++) {
-            let col = document.createElement('div');
-            col.classList.add('mine-cell', 'closed-cell');
-            col.setAttribute('data-number', n);
-            clickHandler(col, n);
-            row.appendChild(col);
-            n++;
-        }
-        innerWrapper.appendChild(row);
+generateSettings();
+class Game {
+    constructor() {
     }
-    wrapper.appendChild(innerWrapper)
-    game.appendChild(wrapper);
+    static init() {
+        fillMinesArray();
+        let wrapper = document.createElement('div');
+        wrapper.classList.add('mine-wrapper');
+        wrapper.appendChild(generateControls());
+        let innerWrapper = document.createElement('div');
+        innerWrapper.classList.add('mine-inner-wrapper');
+        innerWrapper.style.width = cols * 30 + 6 + 'px';
+        let n = 0;
+        for (let r = 0; r < rows; r++) {
+            let row = document.createElement('div');
+            row.classList.add('mine-row');
+            for (let c = 0; c < cols; c++) {
+                let col = document.createElement('div');
+                col.classList.add('mine-cell', 'closed-cell');
+                col.setAttribute('data-number', n);
+                clickHandler(col, n);
+                row.appendChild(col);
+                n++;
+            }
+            innerWrapper.appendChild(row);
+        }
+        wrapper.appendChild(innerWrapper)
+        game.appendChild(wrapper);
+    }
 }
+Game.init();
 function generateControls() {
     let innerWrapperControls = document.createElement('div');
     innerWrapperControls.classList.add('mine-inner-wrapper', 'controls-wrapper');
@@ -96,44 +87,45 @@ function startNewGame(newGameButton) {
         flagNumber = 0;
         seconds = 0;
         clearInterval(timer);
-        generateGrid();
+        Game.init();
     });
 }
 function setCellClass(cell, arrayItem) {
     let cellClass = arrayItem.isMine ? 'is-mine' : `hint-${arrayItem.hint}`;
     cell.classList.add(cellClass);
 }
-function fillMinesArray(mines, totalCells) {
-    let minesArray = [];
+function fillMinesArray() {
+    minesArray.length = 0;
     for (let m = 0; m < mines; m++) {
-        minesArray.push({ isMine: true });
+        minesArray = [...minesArray, { isMine: true }];
     }
     for (let i = 0; i < (totalCells - mines); i++) {
-        minesArray.push({ isMine: false });
+        minesArray = [...minesArray, { isMine: false }];
     }
-    let shuffledArray = shuffleArray(minesArray);
-    return shuffledArray;
+    shuffleArray();
 }
-function shuffleArray(array) {
-    array.forEach((item, i) => {
+function shuffleArray() {
+    minesArray.forEach((item, i) => {
         const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+        [minesArray[i], minesArray[j]] = [minesArray[j], minesArray[i]];
     })
-    return array;
 }
-function placeHints(shuffledArray, cols) {
-    return shuffledArray.map((item, index) => {
+function placeHints() {
+    minesArray = minesArray.map((item, index) => {
         const isFirstOfRow = !Boolean(index % cols);
         const isLastOfRow = !Boolean((index + 1) % cols);
         let hintCounter = 0;
-        let right = shuffledArray[index + 1];
-        let left = shuffledArray[index - 1];
-        let top = shuffledArray[index - cols];
-        let bottom = shuffledArray[index + cols];
-        let topLeft = shuffledArray[index - (cols + 1)];
-        let topRight = shuffledArray[index - (cols - 1)];
-        let bottomLeft = shuffledArray[index + (cols - 1)];
-        let bottomRight = shuffledArray[index + (cols + 1)];
+
+        let topLeft = minesArray[index - (cols + 1)];
+        let top = minesArray[index - cols];
+        let topRight = minesArray[index - (cols - 1)];
+
+        let left = minesArray[index - 1];
+        let right = minesArray[index + 1];
+        
+        let bottomLeft = minesArray[index + (cols - 1)];
+        let bottom = minesArray[index + cols];
+        let bottomRight = minesArray[index + (cols + 1)];
 
         if (Boolean(right) && !isLastOfRow && right.isMine) {
             hintCounter++;
@@ -171,27 +163,27 @@ function placeHints(shuffledArray, cols) {
 
         item.hint = hintCounter;
         return item;
-    })
+    });
 }
 function clickHandler(cell, currentCell) {
     cell.addEventListener('click', () => {
         if (isCellClosed(cell) && isNotEndGame() && !isWon() && !cell.classList.contains(flagClass)) {
-            const cellsArray = document.querySelectorAll('.mine-cell');
+            cellsArray = document.querySelectorAll('.mine-cell');
             if (isFirstMove()) {
                 startTimer();
-                fillGrid(cell, cellsArray);
+                fillGrid(cell);
             }
             cell.classList.remove(closedCellClass);
             freeCells++;
             if (hasMine(currentCell)) {
                 cell.classList.add('error');
                 game.classList.add(gameOverClass);
-                showAllMines(cellsArray);
+                showAllMines();
                 clearInterval(timer);
                 return;
             }
             if (hasNotHint(currentCell)) {
-                openNearCells(currentCell, cellsArray);
+                openNearCells(currentCell);
             }
             movesNumber++;
             if (isWon()) {
@@ -199,6 +191,12 @@ function clickHandler(cell, currentCell) {
                 clearInterval(timer)
             }
         }
+    });
+    cell.addEventListener('mousedown', () => {
+        game.classList.add('cell-active');
+    });
+    cell.addEventListener('mouseup', () => {
+        game.classList.remove('cell-active');
     });
     cell.addEventListener('contextmenu', function (event) {
         event.preventDefault();
@@ -209,13 +207,13 @@ function clickHandler(cell, currentCell) {
         return false;
     }, false);
 }
-function fillGrid(cell, cellsArray) {
+function fillGrid(cell) {
     const currentCell = Number(cell.getAttribute('data-number'));
     const safeKey = getRandomSafeKey();
     if (minesArray[currentCell].isMine) {
         [minesArray[currentCell], minesArray[safeKey]] = [minesArray[safeKey], minesArray[currentCell]];
     }
-    placeHints(minesArray, cols);
+    placeHints();
     cellsArray.forEach((item, index) => {
         let value = Boolean(minesArray[index].isMine) ? '' : Boolean(minesArray[index].hint) ? minesArray[index].hint : '';
         item.setAttribute('data-mine', minesArray[index].isMine);
@@ -232,7 +230,7 @@ function getRandomSafeKey() {
     let safeCellsArray = [];
     minesArray.forEach((item, index) => {
         if (!item.isMine) {
-            safeCellsArray.push(index);
+            safeCellsArray = [...safeCellsArray, index];
         }
     });
     const j = Math.floor(Math.random() * safeCellsArray.length);
@@ -247,7 +245,7 @@ function isCellClosed(cell) {
 function hasNotHint(currentCell) {
     return !Boolean(minesArray[currentCell].hint);
 }
-function openNearCells(currentCell, cellsArray) {
+function openNearCells(currentCell) {
     const isFirstOfRow = !Boolean(currentCell % cols);
     const isLastOfRow = !Boolean((currentCell + 1) % cols);
     let radiusArray = [];
@@ -261,29 +259,29 @@ function openNearCells(currentCell, cellsArray) {
     let bottomRight = currentCell + (cols + 1);
 
     if (isNotNegative(right) && !isLastOfRow) {
-        radiusArray.push(right);
+        radiusArray = [...radiusArray, right];
     }
     if (isNotNegative(left) && !isFirstOfRow) {
-        radiusArray.push(left);
+        radiusArray = [...radiusArray, left];
     }
     if (isNotNegative(bottom)) {
-        radiusArray.push(bottom);
+        radiusArray = [...radiusArray, bottom];
     }
     if (isNotNegative(top)) {
-        radiusArray.push(top);
+        radiusArray = [...radiusArray, top];
     }
 
     if (isNotNegative(topLeft) && !isFirstOfRow) {
-        radiusArray.push(topLeft);
+        radiusArray = [...radiusArray, topLeft];
     }
     if (isNotNegative(bottomLeft) && !isFirstOfRow) {
-        radiusArray.push(bottomLeft);
+        radiusArray = [...radiusArray, bottomLeft];
     }
     if (isNotNegative(topRight) && !isLastOfRow) {
-        radiusArray.push(topRight);
+        radiusArray = [...radiusArray, topRight];
     }
     if (isNotNegative(bottomRight) && !isLastOfRow) {
-        radiusArray.push(bottomRight);
+        radiusArray = [...radiusArray, bottomRight];
     }
 
     radiusArray.forEach((cell) => {
@@ -295,7 +293,7 @@ function openNearCells(currentCell, cellsArray) {
             cellsArray[cell].classList.remove(closedCellClass);
             freeCells++;
             if (hasNotHint(cell)) {
-                openNearCells(cell, cellsArray);
+                openNearCells(cell);
             }
         }
     });
@@ -312,7 +310,7 @@ function isNotEndGame() {
 function isWon() {
     return (totalCells - mines) === freeCells;
 }
-function showAllMines(cellsArray) {
+function showAllMines() {
     cellsArray.forEach((currentCell, index) => {
         if (hasMine(index)) {
             currentCell.classList.remove(closedCellClass);
@@ -340,11 +338,11 @@ function levelSelect() {
             seconds = 0;
             clearInterval(timer);
             generateSettings(level);
-            generateGrid();
+            Game.init();
         })
     });
 }
-function generateSettings(level) {
+function generateSettings() {
     rows = settings[level].rows;
     cols = settings[level].cols;
     mines = settings[level].mines;

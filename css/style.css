@@ -127,7 +127,7 @@ body {
 .game-won #new-game-btn {
   background-position: 2px -17px;
 }
-.cell-active #new-game-btn {
+.cell-active:not(.game-over) #new-game-btn {
   background-position: -17px 2px;
 }
 .digital-box {
